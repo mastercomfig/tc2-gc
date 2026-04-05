@@ -1,5 +1,5 @@
 import { WebAPIInterface } from "../types/webapi";
-import { MessageDispatcher, ProtoMessage, RawMessage } from "../types/message";
+import { MessageDispatcher, RawMessage } from "../types/message";
 import { ETFGCMsg, CMsgGC_Match_ResultSchema } from "../gen/tf_gcmessages_pb";
 import { Snowflake } from "@sapphire/snowflake";
 import type { AppContext } from "../types";
@@ -60,7 +60,8 @@ dispatcher.subscribeMessage(
 		return {
 			match_id,
 		};
-	}
+	},
+	{ roles: ["result_poster"] }
 );
 
 export const ISDK = new WebAPIInterface("ISDK");

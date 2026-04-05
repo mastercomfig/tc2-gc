@@ -76,18 +76,25 @@ export type EMsgFilter = {
 
 export type Filter = EMsgFilter;
 
-import { AuthContext } from "./auth";
+import { AuthContext, AuthRole } from "./auth";
+
+export type SubscriptionOptions = {
+	roles?: AuthRole[];
+};
 
 export class Subscription {
 	filter: Filter;
 	callback: (message: RawMessage, c: AppContext, auth: AuthContext) => Promise<any> | any;
+	options?: SubscriptionOptions;
 
 	constructor(
 		filter: Filter,
 		callback: (message: RawMessage, c: AppContext, auth: AuthContext) => Promise<any> | any,
+		options?: SubscriptionOptions
 	) {
 		this.filter = filter;
 		this.callback = callback;
+		this.options = options;
 	}
 }
 
@@ -97,8 +104,9 @@ export class MessageDispatcher {
 	subscribe(
 		filter: Filter,
 		callback: (message: RawMessage, c: AppContext, auth: AuthContext) => Promise<any> | any,
+		options?: SubscriptionOptions
 	): Subscription {
-		const subscription = new Subscription(filter, callback);
+		const subscription = new Subscription(filter, callback, options);
 		this.subscriptions.add(subscription);
 		return subscription;
 	}
@@ -111,6 +119,13 @@ export class MessageDispatcher {
 		for (const subscription of this.subscriptions) {
 			const filter = subscription.filter;
 			if (filter.type === "emsg" && rawMessage.emsg === filter.emsg) {
+				if (subscription.options?.roles) {
+					for (const role of subscription.options.roles) {
+						if (!auth.hasRole(role)) {
+							throw new Error(`Unauthorized: Missing role '${role}' for message ${rawMessage.emsg}`);
+						}
+					}
+				}
 				return await subscription.callback(rawMessage, c, auth);
 			}
 		}
@@ -120,14 +135,16 @@ export class MessageDispatcher {
 	subscribeMessage<Desc extends DescMessage>(
 		emsg: number,
 		schema: Desc,
-		callback: (message: MessageShape<Desc>, c: AppContext, auth: AuthContext) => Promise<any> | any
+		callback: (message: MessageShape<Desc>, c: AppContext, auth: AuthContext) => Promise<any> | any,
+		options?: SubscriptionOptions
 	): Subscription {
 		return this.subscribe(
 			{ type: "emsg", emsg },
 			(rawMessage: RawMessage, c: AppContext, auth: AuthContext) => {
 				const messageDesc = ProtoMessage.fromRawMessage(schema, rawMessage);
 				return callback(messageDesc.body, c, auth);
-			}
+			},
+			options
 		);
 	}
 }
