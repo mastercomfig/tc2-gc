@@ -1,12 +1,27 @@
 import { fromHono } from "chanfana";
 import { Hono } from "hono";
-import { TaskCreate } from "./endpoints/taskCreate";
-import { TaskDelete } from "./endpoints/taskDelete";
-import { TaskFetch } from "./endpoints/taskFetch";
-import { TaskList } from "./endpoints/taskList";
+import { WebAPIRuntimeEndpoint } from "./endpoints/webapi";
+import "./api/ISDK";
+import { GetMatchData } from "./endpoints/getMatchData";
+import { ListMatchIds } from "./endpoints/listMatchIds";
+import { cors } from "hono/cors";
 
 // Start a Hono app
 const app = new Hono<{ Bindings: Env }>();
+
+app.use(
+	"*",
+	cors({
+		origin: [
+			"https://comfig.app",
+			"https://develop.mastercomfig-site.pages.dev",
+			"http://localhost:4321",
+			"http://127.0.0.1:4321",
+			"http://localhost:8787",
+			"https://teamcomtress.com",
+		],
+	}),
+);
 
 // Setup OpenAPI registry
 const openapi = fromHono(app, {
@@ -14,13 +29,10 @@ const openapi = fromHono(app, {
 });
 
 // Register OpenAPI endpoints
-openapi.get("/api/tasks", TaskList);
-openapi.post("/api/tasks", TaskCreate);
-openapi.get("/api/tasks/:taskSlug", TaskFetch);
-openapi.delete("/api/tasks/:taskSlug", TaskDelete);
+openapi.post("/webapi/:interfaceName/:methodName/v:version", WebAPIRuntimeEndpoint);
 
-// You may also register routes for non OpenAPI directly on Hono
-// app.get('/test', (c) => c.text('Hono!'))
+openapi.get("/match/:match_id", GetMatchData);
+openapi.post("/matches", ListMatchIds);
 
 // Export the Hono app
 export default app;

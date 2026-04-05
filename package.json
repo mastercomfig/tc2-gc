@@ -10,14 +10,18 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@bufbuild/protobuf": "^2.11.0",
+    "@sapphire/snowflake": "^3.5.5",
     "chanfana": "^2.8.3",
     "hono": "^4.11.9",
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@bufbuild/buf": "^1.65.0",
+    "@bufbuild/protoc-gen-es": "^2.11.0",
     "@types/node": "22.13.0",
     "@types/service-worker-mock": "^2.0.4",
-    "wrangler": "^4.65.0",
-    "vitest": "^2.1.9"
+    "vitest": "^2.1.9",
+    "wrangler": "^4.65.0"
   }
 }

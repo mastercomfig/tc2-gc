@@ -9,7 +9,19 @@
 	"compatibility_date": "2025-08-28",
 	"observability": {
 		"enabled": true
-	}
+	},
+	"d1_databases": [
+		{
+			"binding": "tc2_match_db",
+			"database_name": "tc2-match-db",
+			"database_id": "2b5392cc-3a8f-46cc-a306-67ae62cb52c3"
+		},
+		{
+			"binding": "tc2_actor_db",
+			"database_name": "tc2-actor-db",
+			"database_id": "769244b3-19d1-4790-a7ea-4a7ca279d2cd"
+		}
+	]
 	/**
 	 * Smart Placement
 	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
